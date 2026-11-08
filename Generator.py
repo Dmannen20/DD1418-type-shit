@@ -79,10 +79,10 @@ class Generator(object) :
                     if row[0] == '-1':
                         break
                     
-                    last_index = int(row[0])
+                    prev_index = int(row[0])
                     current_index = int(row[1])
                     log_prob = float(row[2])
-                    self.bigram_prob[last_index][current_index] = log_prob
+                    self.bigram_prob[prev_index][current_index] = log_prob
 
                 return True
         except IOError:

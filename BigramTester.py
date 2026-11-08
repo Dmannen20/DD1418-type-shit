@@ -64,6 +64,27 @@ class BigramTester(object):
             with codecs.open(filename, 'r', 'utf-8') as f:
                 self.unique_words, self.total_words = map(int, f.readline().strip().split(' '))
                 # YOUR CODE HERE
+                # Denna kod är kopierad från Generator.py.
+                
+                for q in range(self.unique_words):
+                    row = f.readline().strip().split(' ')
+                    idx = int(row[0])
+                    self.index[row[1]] = idx # ordet är nyckeln. Vi assignar dess id
+                    self.word[idx] = row[1]
+                    self.unigram_count[row[1]] = int(row[2]) # ordet (row[1]) är nyckeln. 
+                                    
+                
+                while True:
+                    row = f.readline().strip().split(' ')
+                                    
+                    if row[0] == '-1':
+                        break
+                                    
+                    prev_index = int(row[0])
+                    current_index = int(row[1])
+                    log_prob = float(row[2])
+                    self.bigram_prob[prev_index][current_index] = log_prob
+                    
                 return True
         except IOError:
             print("Couldn't find bigram probabilities file {}".format(filename))
@@ -72,6 +93,32 @@ class BigramTester(object):
 
     def compute_entropy_cumulatively(self, word):
         # YOUR CODE HERE
+
+        unigram_prob = self.unigram_count.get(word, 0)/ self.total_words # what happens if a weird word appears
+        self.test_words_processed += 1 
+
+        # local variable!
+        bigram_prob_linear = 0
+        
+        # This is to make sure bigram_prob_linear remains 0 if no match
+        # (if we have a previos word) AND (one of the keys = word)
+        if self.last_index != -1 and word in self.index:
+            log_p = self.bigram_prob[self.last_index].get(self.index[word])
+            if log_p is not None:
+                bigram_prob_linear = math.exp(log_p)
+        
+        # enligt den givna formeln
+        wtf = math.log(self.lambda1 * bigram_prob_linear + self.lambda2*unigram_prob + self.lambda3)
+        
+        # enligt formeln
+        N = self.test_words_processed
+        
+        old_log_average= self.logProb * (N-1)
+        # contribution is -wtf/N
+        self.logProb = old_log_average + (-wtf)/N
+
+        # return -1 if there are no such word
+        self.last_index = self.index.get(word, -1)
         pass
 
     def process_test_file(self, test_filename):
