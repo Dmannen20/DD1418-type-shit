@@ -65,20 +65,23 @@ class Generator(object) :
                 self.unique_words, self.total_words = map(int, f.readline().strip().split(' '))
                 # YOUR CODE HERE
                 for q in range(self.unique_words):
-                    row = list(map(str, f.readline().strip().split(' '))) # Gör om raden till en lista
-                    self.index[row[1]] = row[0] # Tar ordet, som nyckel och index som värde
-                    self.word[row[0]] = row[1] # Tvärtom från ovan
-                    self.unigram_count[row[1]] = row[2] # Sätter ordet som nyckel, unigram_frek. som värde
+                    # jag tog bort map(float osv) för det blev konstigt senare
+                    row = f.readline().strip().split(' ')
+                    idx = int(row[0])
+                    self.index[row[1]] = idx # ordet är nyckeln. Vi assignar dess id
+                    self.word[idx] = row[1]
+                    self.unigram_count[row[1]] = int(row[2]) # ordet (row[1]) är nyckeln. 
+                    
 
                 while True:
-                    row = list(map(float, f.readline().strip().split(' '))) # Gör om till floats, pga decimaler
+                    row = f.readline().strip().split(' ')
                     
-                    if row[0] == float(-1): # ÄR detta en farlig rad?! Pga float är floatpointing error
+                    if row[0] == '-1':
                         break
                     
-                    last_index = row[0]
-                    current_index = row[1]
-                    log_prob = row[2]
+                    last_index = int(row[0])
+                    current_index = int(row[1])
+                    log_prob = float(row[2])
                     self.bigram_prob[last_index][current_index] = log_prob
 
                 return True
@@ -93,12 +96,31 @@ class Generator(object) :
         """ 
         # YOUR CODE HERE
         current_word = w
-        print("genaeraer")
-        for i in range(n):
-            for next_word in self.bigram_prob[self.index[current_word]]: #hmmm
-                print(next_word)
+        
+        # this list holds all randomly generated words
+        words = [current_word]
+        for _ in range(n - 1):
+            probs = self.bigram_prob[self.index[current_word]] #  {next_word_id: logprob, next_word_id: logprob...}
+            if len(probs) == 0: # if empty
+                print(f"died at _ = {_}")
+                next_id = random.randrange(self.unique_words)
+                current_word = self.word[next_id]
+                words.append(current_word)
+                continue;# SLUMPA FRAM ORD
+            
+            ids_of_coming_word = list(probs.keys())
+            
+            # list of probabilites (not logged)
+            weights = [math.exp(log_p) for log_p in probs.values()]
+            
+            # gives "random" next word, according to weights 
+            next_id = random.choices(ids_of_coming_word, weights=weights)[0] # [0] because choice returns a list
+            current_word = self.word[next_id]
+            words.append(current_word)
+            
+        # glues the words of list "words" together with " "
+        print (" ".join(words))
                 
-
 
         pass
 
