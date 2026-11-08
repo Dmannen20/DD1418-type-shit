@@ -95,7 +95,10 @@ class Generator(object) :
         of the language model.
         """ 
         # YOUR CODE HERE
-        current_word = w
+        current_word = w.lower()
+        if current_word not in self.index:
+            print(f"'{w}' is not in the model's vocab")
+            return
         
         # this list holds all randomly generated words
         words = [current_word]
