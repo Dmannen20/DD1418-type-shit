@@ -94,7 +94,7 @@ class BigramTester(object):
     def compute_entropy_cumulatively(self, word):
         # YOUR CODE HERE
 
-        unigram_prob = self.unigram_count.get(word, 0)/ self.total_words # what happens if a weird word appears
+        unigram_prob = self.unigram_count.get(word, 0)/ self.total_words 
         self.test_words_processed += 1 
 
         # local variable!
@@ -108,16 +108,16 @@ class BigramTester(object):
                 bigram_prob_linear = math.exp(log_p)
         
         # enligt den givna formeln
-        wtf = math.log(self.lambda1 * bigram_prob_linear + self.lambda2*unigram_prob + self.lambda3)
+        new_word_log_p = math.log(self.lambda1 * bigram_prob_linear + self.lambda2*unigram_prob + self.lambda3)
         
         # enligt formeln
         N = self.test_words_processed
         
-        old_log_average= self.logProb * (N-1)
-        # contribution is -wtf/N
-        self.logProb = old_log_average + (-wtf)/N
+        old_sum = self.logProb * (N-1)
+        new_sum = old_sum + (-new_word_log_p)
+        self.logProb = new_sum/N
 
-        # return -1 if there are no such word
+        # assigns -1 if there are no such word
         self.last_index = self.index.get(word, -1)
         pass
 
