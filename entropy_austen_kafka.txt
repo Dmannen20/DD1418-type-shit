@@ -1,3 +1,0 @@
-
-c:\GitHub\LanguageEngineering\solutions\a02>python BigramTester.py -f austen_model.txt -t data/kafka.txt 
-Read 24652 words. Estimated entropy: 7.39
